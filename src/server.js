@@ -1,36 +1,35 @@
 const express = require('express')
 const puppeteer = require('puppeteer')
 const pug = require('pug')
-
-const app = express()
+const path = require('path')
 
 const url = 'https://goatstone-clp-2019.appspot.com/'
-const url2 = 'http://localhost:3000'
-
+const app = express()
+app.set("view engine", "pug");
+app.use(
+  express.static(path.join(__dirname, 'static'))
+)
 app.use(async (req, res) => {
-
   const browser = await puppeteer.launch({
     args: ['--no-sandbox']
   });
   const page = await browser.newPage();
   await page.goto(url);
   const imageBuffer = await page.screenshot();
-  browser.close();
+  browser.close()
 
-  // res.set('Content-Type', 'image/png');
-  // res.send(imageBuffer);
-  // res.send('imageBuffer');
-
-const fn  = pug.compile('abc abc', {})
-const html = fn({})
-pug.render('abc', {}) 
-
-// res.set('Content-Type', 'image/png');
-  // res.send('xxxxxxxxxxxxxxxxxxxx');
+  // set up and send HTML to the browser
+  const compiledFunction = await pug.compileFile('src/views/page.pug')
+  let imageBufferBase64 = imageBuffer.toString('base64')
+  const html = compiledFunction({
+    pageTitle: 'puppeteer results',
+    foo: 'xxx',
+    imageString: imageBufferBase64,
+  })
+  res.send(html);
 });
 
-// const port = process.env.PORT || 8080
-port = 8080
+const port = process.env.PORT || 8080
 const server = app.listen(port, err => {
   if (err) return console.error(err);
   const port = server.address().port;
@@ -65,12 +64,3 @@ const server = app.listen(port, err => {
   await browser.close()
 })()
 */
-// function delayPromise(msg) {
-//   return new Promise((res, rej) => {
-//     setTimeout(function () {
-//       res("Success!" + msg)
-//     }, 1250)
-//   })
-// }
-// const a = await delayPromise('xxxx')
-// console.log('a:', a)

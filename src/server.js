@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer')
 const pug = require('pug')
 const path = require('path')
 
-const url = 'https://goatstone-clp-2019.appspot.com/'
+const url = process.env.URL_TO_PUPPET || 'https://min-hooks-goatstone.appspot.com'
 const app = express()
 app.set("view engine", "pug");
 app.use(
@@ -23,7 +23,7 @@ app.use(async (req, res) => {
   let imageBufferBase64 = imageBuffer.toString('base64')
   const html = compiledFunction({
     pageTitle: 'puppeteer results',
-    foo: 'xxx',
+    runDate: new Date(),
     imageString: imageBufferBase64,
   })
   res.send(html);

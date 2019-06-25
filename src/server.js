@@ -3,30 +3,52 @@ const puppeteer = require('puppeteer')
 const pug = require('pug')
 const path = require('path')
 
+const steps = [
+  {label: 'Page Loaded', image: null},
+  {label: 'Clicked on Add Widget Button', image: null},
+]
 const url = process.env.URL_TO_PUPPET || 'https://min-hooks-goatstone.appspot.com'
+let browser
 const app = express()
 app.set("view engine", "pug");
+
+async function getPage () {
+  browser = await puppeteer.launch({
+    args: ['--no-sandbox']
+  });
+  const browserPage = await browser.newPage();
+  await browserPage.goto(url);
+  return browserPage
+}
+// page = browserPage(browser, url)
+// page.getPageImage() returns string
 app.use(
   express.static(path.join(__dirname, 'static'))
 )
 app.use(async (req, res) => {
-  const browser = await puppeteer.launch({
-    args: ['--no-sandbox']
-  });
-  const page = await browser.newPage();
-  await page.goto(url);
-  const imageBuffer = await page.screenshot();
-  browser.close()
+
+  const browserPage = await getPage()
+
+  // 1) load page
+  steps[0].image = (await browserPage.screenshot()).toString('base64')
+
+  // 2) click on add widget button
+  await browserPage.click('button.add-widget')
+  steps[1].image = (await browserPage.screenshot()).toString('base64')
+
+  // END the browser session
+  await browser.close()
 
   // set up and send HTML to the browser
   const compiledFunction = await pug.compileFile('src/views/page.pug')
-  let imageBufferBase64 = imageBuffer.toString('base64')
-  const html = compiledFunction({
+
+  res.send(compiledFunction({
     pageTitle: 'puppeteer results',
     runDate: new Date(),
-    imageString: imageBufferBase64,
-  })
-  res.send(html);
+    imageString: steps[0].image,
+    imageString2: steps[1].image,
+    steps,
+  }));
 });
 
 const port = process.env.PORT || 8080

@@ -3,8 +3,11 @@ html(lang="en")
   head
     title= pageTitle
   body 
-  h1 Puppet for Min Hooks
+  h1 Puppeteer for the application Min Hooks
   span Run Date: #{runDate} 
-  h2 page load: 
-  img(src='data:image/png;base64,' + imageString, width=300 height=300)
-  img.className#IdName(src="/gs.svg" alt="Image Title" width=20 height=20)
+
+  section 
+    each val in steps
+      article
+      h3= val.label
+      img(src='data:image/png;base64,' + val.image, width=400)

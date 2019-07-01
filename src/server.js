@@ -4,8 +4,13 @@ const pug = require('pug')
 const path = require('path')
 
 const steps = [
-  {label: 'Page Loaded', image: null},
-  {label: 'Clicked on Add Widget Button', image: null},
+  {label: 'Page Load', image: null},
+  {label: 'Add Text To Add Widget Name Input', image: null},
+  {label: 'Click on Add Widget Button', image: null},
+  {label: 'Click on Delete button', image: null},
+  {label: 'Click on Edit button', image: null},
+  {label: 'Add text to input', image: null},
+  {label: 'Click on Update button', image: null},
 ]
 const url = process.env.URL_TO_PUPPET || 'https://min-hooks-goatstone.appspot.com'
 let browser
@@ -32,9 +37,26 @@ app.use(async (req, res) => {
   // 1) load page
   steps[0].image = (await browserPage.screenshot()).toString('base64')
 
-  // 2) click on add widget button
-  await browserPage.click('button.add-widget')
+  // 2) add a name
+  // add text to the input
+  await browserPage.focus('article.widget-add-control input')
+  await browserPage.keyboard.type('abc defghi')
   steps[1].image = (await browserPage.screenshot()).toString('base64')
+  // click the Add button
+  await browserPage.click('button.add-widget')
+  steps[2].image = (await browserPage.screenshot()).toString('base64')
+
+  // Delete a name
+  await browserPage.click('button.delete-widget')
+  steps[3].image = (await browserPage.screenshot()).toString('base64')
+
+  await browserPage.click('button.edit-widget')
+  steps[4].image = (await browserPage.screenshot()).toString('base64')
+  await browserPage.focus('article.widget-update-control input')
+  await browserPage.keyboard.type('abc defghi')
+  steps[5].image = (await browserPage.screenshot()).toString('base64')
+  await browserPage.click('button.update-widget')
+  steps[6].image = (await browserPage.screenshot()).toString('base64')
 
   // END the browser session
   await browser.close()
